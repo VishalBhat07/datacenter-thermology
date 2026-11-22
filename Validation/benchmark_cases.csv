@@ -1,0 +1,10 @@
+layout,peak_load_slot,scenario,offline_crac,base_rack_w,peak_rack_w,total_it_w,warmup_s,episode_s,sample_interval_s
+current,C01,Peak load,,1000,4000,35000,900,180,1
+current,C01,CRAC outage,CRAC-1,1000,4000,35000,900,180,1
+current,C01,CRAC outage,CRAC-3,1000,4000,35000,900,180,1
+all_cooling,B05,Peak load,,1000,4000,35000,900,180,1
+all_cooling,B05,CRAC outage,CRAC-1,1000,4000,35000,900,180,1
+all_cooling,B05,CRAC outage,CRAC-3,1000,4000,35000,900,180,1
+outage_aware,D02,Peak load,,1000,4000,35000,900,180,1
+outage_aware,D02,CRAC outage,CRAC-1,1000,4000,35000,900,180,1
+outage_aware,D02,CRAC outage,CRAC-3,1000,4000,35000,900,180,1
