@@ -1,0 +1,204 @@
+\documentclass{ieeeaccess}
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{algorithm}
+\usepackage{listings}
+\usepackage{url}
+\urlstyle{same}
+
+\usepackage{bm}
+\makeatletter
+\AtBeginDocument{\DeclareMathVersion{bold}
+\SetSymbolFont{operators}{bold}{T1}{times}{b}{n}
+\SetSymbolFont{NewLetters}{bold}{T1}{times}{b}{it}
+\SetMathAlphabet{\mathrm}{bold}{T1}{times}{b}{n}
+\SetMathAlphabet{\mathit}{bold}{T1}{times}{b}{it}
+\SetMathAlphabet{\mathbf}{bold}{T1}{times}{b}{n}
+\SetMathAlphabet{\mathtt}{bold}{OT1}{pcr}{b}{n}
+\SetSymbolFont{symbols}{bold}{OMS}{cmsy}{b}{n}
+\renewcommand\boldmath{\@nomath\boldmath\mathversion{bold}}}
+\makeatother
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\begin{document}
+\history{Working draft. Not submitted.}
+\doi{Not assigned}
+\vol{--}
+\year{--}
+
+\title{ThermoWatch: Screening Data Center Rack Placements Under Cooling Outages}
+
+\author{\uppercase{Author details to be confirmed}\authorrefmark{1}}
+\address[1]{Affiliation to be confirmed}
+\markboth{ThermoWatch: Screening Rack Placements Under Cooling Outages}
+         {ThermoWatch: Screening Rack Placements Under Cooling Outages}
+\corresp{Corresponding author to be confirmed.}
+
+\begin{abstract}
+Rack placements selected under normal cooling may perform poorly when a cooling unit loses heat-removal capacity. ThermoWatch uses a two-dimensional transient heat-balance model to screen peak-load rack placements before running three-dimensional computational fluid dynamics (CFD). The screening model compares 32 placements in a raised-floor data hall under nominal operation, a sustained load step, and four individual cooling-coil outages. The CFD protocol compares three shortlisted placements under full cooling and two coil outages using matched inlet probes and a common warm-up within each model. The evaluation is designed to test whether the two models preserve the placement ranking and identify the same hot inlets. This draft reports the screening result, not the outcome of the unfinished CFD comparison.
+\end{abstract}
+
+\begin{keywords}
+Computational fluid dynamics, data centers, rack placement, reduced-order thermal modeling, thermal management.
+\end{keywords}
+
+\titlepgskip=-21pt
+\maketitle
+
+\section{Introduction}
+\PARstart{C}{ooling} conditions can change which rack placement is preferable. A slot with a low inlet temperature when all cooling units operate may receive warmer air after one unit stops removing heat. Comparing placements under both conditions helps separate a choice optimized for normal operation from one that is less sensitive to a cooling outage.
+
+ThermoWatch evaluates this trade-off in a 32-rack data hall. It first uses a two-dimensional (2D) transient model to screen every possible location of one peak-load rack. It then uses three-dimensional (3D) CFD to test a smaller set of placements under matched operating conditions. The research question is whether the fast model preserves the CFD ranking of the shortlisted placements, especially in outage cases. The comparison does not assume that CFD is physical ground truth or that the best shortlisted placement is globally optimal.
+
+\section{Related Work}
+Banerjee \emph{et al.} combined cooling awareness and thermal awareness in workload placement for high-performance computing data centers \cite{banerjee2011}. The placement decision studied here is narrower: the hall geometry and installed cooling capacity remain fixed, and the position of a single sustained peak load changes. The objective is the worst sampled rack-inlet temperature across several cooling states rather than the temperature under full cooling alone.
+
+Han \emph{et al.} developed an open-source fast fluid dynamics model for data center thermal management \cite{han2021}. ThermoWatch takes a different simplification: it does not solve for velocity. Instead, it prescribes airflow through the racks and assigns each rack to a cooling loop. This makes the model inexpensive enough to screen all 32 slots, but it also removes the 3D flow mechanisms that can change the placement ranking. The CFD comparison measures the consequence of that simplification for this decision. These works establish related approaches; a broader literature comparison is needed before making a claim of novelty.
+
+\section{Methodology}
+
+\subsection{Data Hall and Placement Decision}
+The study uses a raised-floor hall with four rows of eight racks, two cold aisles, four computer-room air-conditioning (CRAC) units, and 14 supply-tile openings. The hall footprint is $13.4 \times 12.4$~m. Each rack body is $0.8 \times 1.2 \times 2.0$~m (width, depth, and height). Slot identifiers run from A01 to D08, in increasing position along each row. Rack locations, orientation, and cooling infrastructure remain fixed.
+
+A placement assigns the peak-load rack to one of the 32 slots while the remaining 31 slots carry equal base loads. The nominal power is 1~kW per rack and the peak rack draws 4~kW. Total IT power is therefore 32~kW during nominal warm-up and 35~kW during each peak-load episode. These are assumed electrical loads converted to sensible heat, not measurements. Changing placement changes which slot receives the peak load, rather than moving the rack geometry or changing total power.
+
+\subsection{Two-Dimensional Transient Heat Balance}
+The screening model discretizes the hall into a $22 \times 20$ horizontal grid with cell width $\Delta x=0.6$~m and effective air depth $d=1$~m. Its time step is $\Delta t=0.1$~s. If $T_i^n$ is the temperature of cell $i$ at time step $n$, the mixing contribution is
+\begin{equation}
+T_i^* =
+T_i^n + \frac{\alpha\Delta t}{\Delta x^2}
+\sum_{j\in\mathcal{N}(i)}(T_j^n-T_i^n),
+\label{eq:mixing}
+\end{equation}
+where $\mathcal{N}(i)$ contains the face-adjacent cells inside the grid and $\alpha=0.12$~m$^2$/s is an effective mixing diffusivity. Missing neighbors represent zero boundary heat flux.
+
+For rack $r$, the inlet and exhaust cells lie in front of and behind the rack center, respectively. The points used to select these cells are 1.05~m from the center. Each rack carries prescribed airflow $\dot V=0.24$~m$^3$/s. The cell heat capacity is $C=(\rho c_p)\Delta x^2d$, with $\rho c_p=1206$~J/(m$^3$\,K). Define the sensible heat transfer through the rack as
+\begin{equation}
+A_r=(\rho c_p)\dot V(T_{i(r)}^n-T_{e(r)}^n),
+\label{eq:rack-transfer}
+\end{equation}
+where $i(r)$ and $e(r)$ denote its inlet and exhaust cells. Each rack belongs to the CRAC loop nearest its inlet. For CRAC $j$, the requested cooling power is
+\begin{equation}
+D_j=\sum_{r\in\mathcal R_j}(\rho c_p)\dot V
+[T_{e(r)}^n-T_s]_+,
+\label{eq:demand}
+\end{equation}
+where $[x]_+=\max(x,0)$, $\mathcal R_j$ is the set of racks assigned to loop $j$, and $T_s=18\,^{\circ}\mathrm{C}$. An active loop supplies the fraction $\gamma_j=\min(1,Q_{\max}/D_j)$ when $D_j>0$, where $Q_{\max}=12$~kW, and $\gamma_j=1$ when $D_j=0$. An offline coil has $\gamma_j=0$ while airflow continues. The cooling power attributed to rack $r$ is $Q_r=\gamma_{j(r)}(\rho c_p)\dot V[T_{e(r)}^n-T_s]_+$.
+
+The model adds $(A_r+P_r)\Delta t/C$ to the exhaust cell and subtracts $(A_r+Q_r)\Delta t/C$ from the inlet cell, where $P_r$ is rack electrical power. These increments accumulate when multiple racks use a cell. Internal mixing and the rack-loop transfer redistribute heat without changing total stored energy; only rack heating and coil removal change it. The model does not resolve the plenum, buoyant flow, rack obstructions, or thermal storage in equipment and walls.
+
+\subsection{Outage-Aware Screening}
+The 2D model warms up for 900 simulated seconds from $22\,^{\circ}\mathrm{C}$ with all racks at base load and all coils operating. From that baseline it evaluates 32 placements across six scenarios: nominal load, peak load with all coils active, and peak load with each of the four coils disabled in turn. Each episode lasts 180~s, with samples every 1~s including the starting state.
+
+For thermal model $m$, slot choice $\ell$, and scenario $s$, the objective first considers the highest sampled inlet temperature across measurement racks $r$ and elapsed sample times $t$:
+\begin{equation}
+J_m(\ell,s)=\max_{r,t}T_{m,\ell,s,r}(t).
+\label{eq:case-peak}
+\end{equation}
+The outage-aware rule minimizes the worst case over the screening scenarios. At $0.01\,^{\circ}\mathrm{C}$ resolution, tied peaks are compared by integrated inlet-temperature exceedance above $27\,^{\circ}\mathrm{C}$ in the limiting case, using trapezoidal weighting. The reference is an analysis threshold, not an equipment compliance statement. The current slot is retained if its score ties the best score. The all-cooling comparator uses the peak-load scenario with all coils operating. A load-balancing heuristic that selects a least-populated CRAC service group is also available in the 2D analysis; it is not a fourth CFD placement in the frozen benchmark.
+
+\section{System Architecture}
+\subsection{Interactive Model and Trace Export}
+The Unity scene provides rack positions and orientations, CRAC positions, and the layout for the inlet sampling grid. The visualization shows a horizontal temperature slice at 1.15~m above the floor on a fixed $18$--$42\,^{\circ}\mathrm{C}$ scale. The screen can compare the current and selected layouts without changing physical scene geometry. Display-only demonstration hotspots are not used in the screening or CFD protocol.
+
+The analysis exports scenario summaries and time-resolved inlet temperatures to comma-separated value (CSV) files. Each trace row identifies the placement, peak-load slot, scenario, offline coil, elapsed time, and measured rack slot. It also records rack coordinates and the center of the associated inlet cell. These coordinates define the CFD sampling positions after mapping Unity coordinates $(X,Y,Z)$ to OpenFOAM coordinates $(X,Z,Y)$, with $Z$ vertical in the CFD domain.
+
+\subsection{OpenFOAM Reference Configuration}
+The CFD model is generated from the frozen hall and rack geometry. It encloses the hall to a height of 3.2~m and adds a 0.6~m underfloor plenum below the slab. The adjacent power room is excluded. The mesh uses a structured block decomposition with 37,862 cells and explicit rack and CRAC obstructions. The perforated supply tile passages connect the plenum and hall. The reference configuration applies a Darcy--Forchheimer source to those passages with an assumed dimensionless loss coefficient of 16 \cite{openfoamPorosity}.
+
+OpenFOAM v2312 runs a transient buoyant compressible-flow solution with \emph{buoyantPimpleFoam} \cite{openfoamSolver}. The configuration uses standard $k$--$\epsilon$ turbulence, 5\% inlet turbulence intensity, a 0.05~m inlet length scale, and an adjustable time step with a target maximum Courant number of 0.5 and a maximum time step of 0.025~s. Wall temperatures use a zero-gradient condition. Rack intake and exhaust patches exchange equal mass flow of 0.288~kg/s per rack. A rack exhaust receives the mapped intake temperature plus the rise due to the specified electrical heat load.
+
+Each CRAC removes and supplies 2.304~kg/s of air. The active boundary maps return temperature back to the plenum supply with up to 12~kW of heat removal and a minimum supply temperature of $18\,^{\circ}\mathrm{C}$. An outage sets removal to zero for one coil while keeping its flow boundary unchanged. The experiment therefore represents loss of cooling with fans operating, not fan shutdown. The tile resistance, room enclosure, and prescribed flow rates are modeling assumptions shared across placements rather than parameters fitted to physical measurements.
+
+\section{Experimental Evaluation}
+\subsection{Matched CFD Cases}
+The selected placements are C01 (current), B05 (all-cooling choice), and D02 (outage-aware choice). Table~\ref{tab:cases} gives the frozen test matrix. CRAC-1 and CRAC-3 are included because they produce the limiting scenarios for the shortlisted placements in the screening model. The CFD test is not a complete search over 32 slots or all four coil outages.
+
+\begin{table}[h]
+\caption{Frozen Placement and Cooling Test Matrix}
+\label{tab:cases}
+\centering
+\begin{tabular}{@{}llccc@{}}
+\toprule
+\textbf{Placement} & \textbf{Slot} & \textbf{Full} & \textbf{CRAC-1} & \textbf{CRAC-3} \\
+ & & \textbf{cooling} & \textbf{off} & \textbf{off} \\
+\midrule
+Current & C01 & 1 & 1 & 1 \\
+All-cooling choice & B05 & 1 & 1 & 1 \\
+Outage-aware choice & D02 & 1 & 1 & 1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Each CFD case begins from the same reconstructed 900~s all-cooling checkpoint. At the branch point, the selected slot increases from 1 to 4~kW, and each case enables or disables cooling as specified in Table~\ref{tab:cases}. All 32 inlet temperatures are sampled at the mapped cell centers and at a height of 1.15~m. The shared warm-up sample at solver time 900~s is retained as elapsed time zero; subsequent samples cover solver times through 1080~s. The equivalent Unity episode has its own common 2D warm-up rather than importing the 3D temperature field.
+
+\subsection{Comparison Metrics}
+The importer converts OpenFOAM probe temperatures from kelvin to degrees Celsius and checks the probe locations against the frozen coordinates. The comparison tool joins the two exports by placement, scenario, elapsed second, and rack slot. It checks that the peak-load slot agrees and that no required samples are missing or duplicated. The complete matrix yields $9\times181\times32=52{,}128$ matched readings. These repeated spatial and temporal observations are not independent experimental replicates.
+
+The primary comparison is the ordering of placements by their worst inlet peak over the same three operating scenarios. Define the envelope over the CFD test scenarios $\mathcal S$ as $W_m(\ell)=\max_{s\in\mathcal S}J_m(\ell,s)$, using \eqref{eq:case-peak} for either model. The difference of interest is $W_m(\mathrm{C01})-W_m(\mathrm{D02})$; a positive difference favors D02. Secondary metrics are mean absolute error, root-mean-square error, signed bias, peak time, and overlap in hottest rack slots. The temperature errors describe pointwise agreement; they do not replace the ranking test.
+
+\subsection{Screening Results and CFD Status}
+Table~\ref{tab:pending} reports the archived 2D model values over the three matched scenarios. The 2D model predicts a $1.23\,^{\circ}\mathrm{C}$ reduction in the worst sampled inlet peak for D02 compared with C01. The all-cooling choice B05 has a higher modeled worst case than C01 over the matched scenarios. These values come only from the 2D model and are not findings of the ongoing CFD benchmark.
+
+\begin{table}[h]
+\caption{Worst Sampled Rack-Inlet Temperature for the Matched Scenarios}
+\label{tab:pending}
+\centering
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Placement} & \textbf{Slot} & \textbf{2D ($^\circ$C)} & \textbf{CFD ($^\circ$C)} \\
+\midrule
+Current & C01 & 34.65 & Pending \\
+All-cooling choice & B05 & 35.22 & Pending \\
+Outage-aware choice & D02 & 33.42 & Pending \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Discussion}
+Several differences can explain a ranking reversal. The 2D model assigns each rack to a single nearest cooling loop, whereas the CFD model allows return air and recirculation to depend on the 3D flow field. The models also treat plenum supply, vertical temperature variation, and physical obstructions differently. A high-load exhaust may therefore affect different rack inlets even with identical electrical power and nominal cooling capacity.
+
+Before interpreting a CFD advantage, check whether the \emph{difference} in worst-case inlet peaks is stable under mesh and time-step refinement \cite{nasaVerification} and changes in assumed flow and tile resistance. Without physical measurements, this is a cross-model comparison, not physical validation. A claim covering all single-coil outages requires CRAC-2 and CRAC-4, and estimating how often the shortlist misses a better slot requires CFD runs for additional placements.
+
+\section{Conclusion}
+ThermoWatch provides a repeatable protocol for comparing low-cost outage-aware placement screening with 3D CFD in one raised-floor hall. The 2D model selects D02 for the stated loads and cooling scenarios. Whether that choice is supported by CFD, and whether the difference is large enough to distinguish from simulation uncertainty, remain open until the benchmark and follow-up checks are complete.
+
+% Add verified funding, contributions, and any required AI-use disclosure
+% in the acknowledgments before submission. Add confirmed author biographies.
+
+\begin{thebibliography}{00}
+\bibitem{banerjee2011}
+A. Banerjee, T. Mukherjee, G. Varsamopoulos, and S. K. S. Gupta,
+``Integrating cooling awareness with thermal aware workload placement for HPC data centers,''
+\emph{Sustainable Computing: Informatics and Systems}, vol. 1, no. 2,
+pp. 134--150, 2011, doi: 10.1016/j.suscom.2011.02.003.
+
+\bibitem{han2021}
+X. Han, W. Tian, J. VanGilder, W. Zuo, and C. Faulkner,
+``An open source fast fluid dynamics model for data center thermal management,''
+\emph{Energy and Buildings}, vol. 230, Art. no. 110599, 2021,
+doi: 10.1016/j.enbuild.2020.110599.
+
+\bibitem{openfoamPorosity}
+OpenCFD Ltd., ``Explicit porosity,'' \emph{OpenFOAM v2312 Documentation}.
+[Online]. Available: \url{https://doc.openfoam.com/2312/tools/processing/numerics/fvoptions/sources/rtm/explicitPorosity/}
+
+\bibitem{openfoamSolver}
+OpenCFD Ltd., ``buoyantPimpleFoam.C file reference,'' \emph{OpenFOAM v2312 API Reference}.
+[Online]. Available: \url{https://api.openfoam.com/2312/buoyantPimpleFoam_8C.html}
+
+\bibitem{nasaVerification}
+NASA Glenn Research Center, ``Verification assessment,'' \emph{NPARC Alliance CFD Verification and Validation Tutorial}.
+[Online]. Available: \url{https://www.grc.nasa.gov/www/wind/valid/tutorial/verassess.html}
+\end{thebibliography}
+
+\EOD
+\end{document}
