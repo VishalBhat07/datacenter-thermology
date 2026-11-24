@@ -172,3 +172,6 @@ LightingData.asset     binary
 
 # Keep the small Unity template icon in ordinary Git.
 Assets/TutorialInfo/Icons/URP.png -filter binary
+
+# Preserve the original export bytes for checksum verification.
+Validation/results/nominal/*.csv -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

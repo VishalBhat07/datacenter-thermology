@@ -1,0 +1,401 @@
+{
+  "cases": [
+    "peak-load",
+    "crac-1",
+    "crac-3"
+  ],
+  "covers_all_four_outages": false,
+  "peak_load_slots": {
+    "current": "C01",
+    "all_cooling": "B05",
+    "outage_aware": "D02"
+  },
+  "matched_samples": 52128,
+  "per_case": {
+    "peak-load": {
+      "layouts": {
+        "current": {
+          "samples": 5792,
+          "bias_c": -1.5585482883287294,
+          "mae_c": 1.5585482883287294,
+          "rmse_c": 1.6473848990299282,
+          "largest_absolute_error_c": 3.0263399999999976,
+          "thermowatch_peak": {
+            "inlet_c": 19.2201,
+            "first_time_s": 180,
+            "rack_slots": [
+              "C01"
+            ]
+          },
+          "reference_peak": {
+            "inlet_c": 21.78964,
+            "first_time_s": 139,
+            "rack_slots": [
+              "B06"
+            ]
+          },
+          "peak_error_c": -2.56954,
+          "hottest_racks_match": false,
+          "common_hottest_racks": []
+        },
+        "all_cooling": {
+          "samples": 5792,
+          "bias_c": -1.6815405902969616,
+          "mae_c": 1.6815405902969616,
+          "rmse_c": 1.7687857143784138,
+          "largest_absolute_error_c": 3.7253310000000006,
+          "thermowatch_peak": {
+            "inlet_c": 18.9405,
+            "first_time_s": 177,
+            "rack_slots": [
+              "B06"
+            ]
+          },
+          "reference_peak": {
+            "inlet_c": 22.603631,
+            "first_time_s": 180,
+            "rack_slots": [
+              "B04"
+            ]
+          },
+          "peak_error_c": -3.663131,
+          "hottest_racks_match": false,
+          "common_hottest_racks": []
+        },
+        "outage_aware": {
+          "samples": 5792,
+          "bias_c": -1.601021643128453,
+          "mae_c": 1.601021643128453,
+          "rmse_c": 1.67571640395573,
+          "largest_absolute_error_c": 2.9712700000000005,
+          "thermowatch_peak": {
+            "inlet_c": 19.2246,
+            "first_time_s": 180,
+            "rack_slots": [
+              "D01"
+            ]
+          },
+          "reference_peak": {
+            "inlet_c": 21.739887,
+            "first_time_s": 55,
+            "rack_slots": [
+              "D02"
+            ]
+          },
+          "peak_error_c": -2.5152870000000007,
+          "hottest_racks_match": false,
+          "common_hottest_racks": []
+        }
+      },
+      "ranking": {
+        "thermowatch": [
+          [
+            "all_cooling"
+          ],
+          [
+            "current"
+          ],
+          [
+            "outage_aware"
+          ]
+        ],
+        "reference": [
+          [
+            "outage_aware"
+          ],
+          [
+            "current"
+          ],
+          [
+            "all_cooling"
+          ]
+        ],
+        "agree": false
+      }
+    },
+    "crac-1": {
+      "layouts": {
+        "current": {
+          "samples": 5792,
+          "bias_c": 0.8436940999654696,
+          "mae_c": 2.6485783527279003,
+          "rmse_c": 3.4837088293847023,
+          "largest_absolute_error_c": 8.904748999999999,
+          "thermowatch_peak": {
+            "inlet_c": 34.645,
+            "first_time_s": 180,
+            "rack_slots": [
+              "A02"
+            ]
+          },
+          "reference_peak": {
+            "inlet_c": 26.371556,
+            "first_time_s": 180,
+            "rack_slots": [
+              "A02"
+            ]
+          },
+          "peak_error_c": 8.273444000000001,
+          "hottest_racks_match": true,
+          "common_hottest_racks": [
+            "A02"
+          ]
+        },
+        "all_cooling": {
+          "samples": 5792,
+          "bias_c": 1.4352263188881216,
+          "mae_c": 2.7975337774516573,
+          "rmse_c": 4.039313795717764,
+          "largest_absolute_error_c": 10.406476000000005,
+          "thermowatch_peak": {
+            "inlet_c": 34.9174,
+            "first_time_s": 180,
+            "rack_slots": [
+              "A03"
+            ]
+          },
+          "reference_peak": {
+            "inlet_c": 25.538009,
+            "first_time_s": 180,
+            "rack_slots": [
+              "A02"
+            ]
+          },
+          "peak_error_c": 9.379391000000002,
+          "hottest_racks_match": false,
+          "common_hottest_racks": []
+        },
+        "outage_aware": {
+          "samples": 5792,
+          "bias_c": 0.5969056296616022,
+          "mae_c": 2.6349768002417124,
+          "rmse_c": 3.3065060693259416,
+          "largest_absolute_error_c": 8.092987,
+          "thermowatch_peak": {
+            "inlet_c": 33.3986,
+            "first_time_s": 180,
+            "rack_slots": [
+              "A02"
+            ]
+          },
+          "reference_peak": {
+            "inlet_c": 25.590715,
+            "first_time_s": 180,
+            "rack_slots": [
+              "A02"
+            ]
+          },
+          "peak_error_c": 7.807885000000002,
+          "hottest_racks_match": true,
+          "common_hottest_racks": [
+            "A02"
+          ]
+        }
+      },
+      "ranking": {
+        "thermowatch": [
+          [
+            "outage_aware"
+          ],
+          [
+            "current"
+          ],
+          [
+            "all_cooling"
+          ]
+        ],
+        "reference": [
+          [
+            "all_cooling"
+          ],
+          [
+            "outage_aware"
+          ],
+          [
+            "current"
+          ]
+        ],
+        "agree": false
+      }
+    },
+    "crac-3": {
+      "layouts": {
+        "current": {
+          "samples": 5792,
+          "bias_c": 0.8167066265538674,
+          "mae_c": 2.2339659262776244,
+          "rmse_c": 3.0684268907350667,
+          "largest_absolute_error_c": 10.284117000000002,
+          "thermowatch_peak": {
+            "inlet_c": 33.6886,
+            "first_time_s": 180,
+            "rack_slots": [
+              "A08"
+            ]
+          },
+          "reference_peak": {
+            "inlet_c": 25.927321,
+            "first_time_s": 180,
+            "rack_slots": [
+              "C07"
+            ]
+          },
+          "peak_error_c": 7.761279000000002,
+          "hottest_racks_match": false,
+          "common_hottest_racks": []
+        },
+        "all_cooling": {
+          "samples": 5792,
+          "bias_c": 1.479586471339779,
+          "mae_c": 2.6503978684392266,
+          "rmse_c": 3.6503647198390365,
+          "largest_absolute_error_c": 11.792032000000003,
+          "thermowatch_peak": {
+            "inlet_c": 35.2199,
+            "first_time_s": 180,
+            "rack_slots": [
+              "A08"
+            ]
+          },
+          "reference_peak": {
+            "inlet_c": 25.802882,
+            "first_time_s": 180,
+            "rack_slots": [
+              "C07"
+            ]
+          },
+          "peak_error_c": 9.417018000000002,
+          "hottest_racks_match": false,
+          "common_hottest_racks": []
+        },
+        "outage_aware": {
+          "samples": 5792,
+          "bias_c": 0.5542357536256906,
+          "mae_c": 2.3250786776588397,
+          "rmse_c": 3.064057109974664,
+          "largest_absolute_error_c": 9.996048000000002,
+          "thermowatch_peak": {
+            "inlet_c": 33.4162,
+            "first_time_s": 180,
+            "rack_slots": [
+              "A08"
+            ]
+          },
+          "reference_peak": {
+            "inlet_c": 25.997106,
+            "first_time_s": 180,
+            "rack_slots": [
+              "C07"
+            ]
+          },
+          "peak_error_c": 7.419094000000005,
+          "hottest_racks_match": false,
+          "common_hottest_racks": []
+        }
+      },
+      "ranking": {
+        "thermowatch": [
+          [
+            "outage_aware"
+          ],
+          [
+            "current"
+          ],
+          [
+            "all_cooling"
+          ]
+        ],
+        "reference": [
+          [
+            "all_cooling"
+          ],
+          [
+            "current"
+          ],
+          [
+            "outage_aware"
+          ]
+        ],
+        "agree": false
+      }
+    }
+  },
+  "worst_case_over_selected_cases": {
+    "thermowatch": {
+      "current": {
+        "inlet_c": 34.645,
+        "limiting_cases": [
+          "crac-1"
+        ]
+      },
+      "all_cooling": {
+        "inlet_c": 35.2199,
+        "limiting_cases": [
+          "crac-3"
+        ]
+      },
+      "outage_aware": {
+        "inlet_c": 33.4162,
+        "limiting_cases": [
+          "crac-3"
+        ]
+      }
+    },
+    "reference": {
+      "current": {
+        "inlet_c": 26.371556,
+        "limiting_cases": [
+          "crac-1"
+        ]
+      },
+      "all_cooling": {
+        "inlet_c": 25.802882,
+        "limiting_cases": [
+          "crac-3"
+        ]
+      },
+      "outage_aware": {
+        "inlet_c": 25.997106,
+        "limiting_cases": [
+          "crac-3"
+        ]
+      }
+    },
+    "ranking": {
+      "thermowatch": [
+        [
+          "outage_aware"
+        ],
+        [
+          "current"
+        ],
+        [
+          "all_cooling"
+        ]
+      ],
+      "reference": [
+        [
+          "all_cooling"
+        ],
+        [
+          "outage_aware"
+        ],
+        [
+          "current"
+        ]
+      ],
+      "agree": false
+    }
+  },
+  "outage_aware_improvement": {
+    "thermowatch_c": 1.2287999999999997,
+    "reference_c": 0.37445000000000306,
+    "difference_c": 0.8543499999999966,
+    "reference_uncertainty_c": null,
+    "reference_improvement_exceeds_uncertainty": null
+  },
+  "inputs": {
+    "thermowatch": "Validation/results/nominal/unity-rack-traces.csv",
+    "reference": "Validation/results/nominal/cfd-traces.csv"
+  }
+}

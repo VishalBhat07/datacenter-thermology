@@ -1,6 +1,6 @@
 # ThermoWatch CFD benchmark
 
-The first comparison uses nine transient episodes. Each of the three peak-load placements is tested with full cooling, CRAC-1 cooling disabled, and CRAC-3 cooling disabled. The objective is to see whether an independent airflow model also ranks D02 ahead of the current C01 placement and the all-cooling choice B05. The CFD mesh, heat and airflow boundaries, reference physics, and four-rank restart have passed their startup checks. The 900 s warm-up completed with all nine reconstructed fields and 32 inlet readings. The nine comparison episodes and independent layout ranking are pending.
+The first comparison uses nine transient episodes. Each of the three peak-load placements is tested with full cooling, CRAC-1 cooling disabled, and CRAC-3 cooling disabled. The objective is to see whether a separate CFD model also ranks D02 ahead of the current C01 placement and the all-cooling choice B05. All nine episodes finished after the common 900 s warm-up; the [nominal results](#nominal-benchmark-results) are available below.
 
 ## Inputs
 
@@ -101,7 +101,27 @@ python3 Tools/prepare_openfoam_benchmark.py Logs/OpenFOAM/reference-warmup-900s 
 caffeinate -i bash Logs/OpenFOAM/benchmark/Allrun
 ```
 
-Each episode starts with the same reconstructed warm-up fields, saves the measured 900 s probe snapshot as its time-zero reference, and collects probes each second through 1080 s. The batch runs cases in order and skips any that already have a complete final checkpoint. No independent layout result is available until the nine episodes have been solved and their probe outputs compared.
+Each episode starts with the same reconstructed warm-up fields, saves the simulated 900 s probe snapshot as its time-zero reference, and collects probes each second through 1080 s. The batch runs cases in order and skips any that already have a complete final checkpoint.
+
+## Nominal benchmark results
+
+The [Unity trace](results/nominal/unity-rack-traces.csv), [OpenFOAM trace](results/nominal/cfd-traces.csv), and [comparison report](results/nominal/comparison.json) are archived here. The default comparison covers 52,128 matched inlet readings.
+
+| Peak-load placement | Unity worst sampled inlet | OpenFOAM worst sampled inlet | Limiting outage in both models |
+| --- | ---: | ---: | --- |
+| Current (C01) | 34.6450 °C | 26.371556 °C | CRAC-1 |
+| All-cooling selection (B05) | 35.2199 °C | 25.802882 °C | CRAC-3 |
+| Outage-aware selection (D02) | 33.4162 °C | 25.997106 °C | CRAC-3 |
+
+The models disagree on placement ordering. D02 improves on C01 by 1.2288 °C in Unity and 0.37445 °C in nominal CFD. Nominal CFD ranks B05 above D02 by 0.194224 °C; the numerical uncertainty in that difference has not been assessed. This comparison covers only the three shortlisted placements, the two tested coil outages, and the full-cooling case. It is not physical validation.
+
+To regenerate the report from the repository root without rerunning the solver:
+
+```bash
+python3 Tools/compare_cfd_traces.py \
+  Validation/results/nominal/unity-rack-traces.csv \
+  Validation/results/nominal/cfd-traces.csv
+```
 
 
 ## Completed run evidence
