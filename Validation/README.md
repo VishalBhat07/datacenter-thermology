@@ -113,7 +113,7 @@ The [Unity trace](results/nominal/unity-rack-traces.csv), [OpenFOAM trace](resul
 | All-cooling selection (B05) | 35.2199 °C | 25.802882 °C | CRAC-3 |
 | Outage-aware selection (D02) | 33.4162 °C | 25.997106 °C | CRAC-3 |
 
-The models disagree on placement ordering. D02 improves on C01 by 1.2288 °C in Unity and 0.37445 °C in nominal CFD. Nominal CFD ranks B05 above D02 by 0.194224 °C; the numerical uncertainty in that difference has not been assessed. This comparison covers only the three shortlisted placements, the two tested coil outages, and the full-cooling case. It is not physical validation.
+The models disagree on placement ordering. D02 improves on C01 by 1.2288 °C in Unity and 0.37445 °C in nominal CFD. Nominal CFD ranks B05 above D02 by 0.194224 °C; see the time-step sensitivity check below. This comparison covers only the three shortlisted placements, the two tested coil outages, and the full-cooling case. It is not physical validation.
 
 To regenerate the report from the repository root without rerunning the solver:
 
@@ -123,6 +123,17 @@ python3 Tools/compare_cfd_traces.py \
   Validation/results/nominal/cfd-traces.csv
 ```
 
+
+## Time-step sensitivity: B05 and D02 under CRAC-3
+
+The [paired traces](results/time-step/cfd-traces.csv) and [report](results/time-step/comparison.json) cover two CRAC-3 coil-off episodes with fan flow retained, the original 37,862-cell mesh, and the same 900 s starting fields. The initial and maximum solver step were set to 0.004 s, keeping `maxCo` at 0.5. The nominal adaptive step median was approximately 0.00862 s. Each trace includes 32 probes at all 181 sampled seconds. Interrupted runs resumed from complete checkpoints; the probe importer checks positions and rejects conflicting restart values.
+
+| Time-step setting | B05 peak | D02 peak | D02 minus B05 |
+| --- | ---: | ---: | ---: |
+| Nominal | 25.802882 °C | 25.997106 °C | +0.194224 °C |
+| 0.004 s cap | 25.828800 °C | 26.469627 °C | +0.640827 °C |
+
+Both peaks remain at elapsed time 180 s; both move from C07 to C08. B05 has the lower peak at both settings; the observed difference grows by 0.446603 °C. At the first post-restart sample, the room-wide maximum changes by −0.226151 °C for B05 (18–19 s) and +0.536130 °C for D02 (168–169 s), both at C08. The step-size and restart effects are not isolated. An uninterrupted rerun or restart-matched control is needed before attributing gap changes to time-step or mesh settings. The check does not establish temporal convergence, a numerical uncertainty bound, or a finer-time-step ranking across all nine cases.
 
 ## Completed run evidence
 

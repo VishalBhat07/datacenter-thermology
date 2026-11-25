@@ -43,7 +43,7 @@
 \corresp{Corresponding author to be confirmed.}
 
 \begin{abstract}
-Rack placements selected under normal cooling may perform poorly when a cooling unit loses heat-removal capacity. ThermoWatch uses a two-dimensional transient heat-balance model to screen peak-load rack placements before running three-dimensional computational fluid dynamics (CFD). The screening model compares 32 placements in a raised-floor data hall under nominal operation, a sustained load step, and four individual cooling-coil outages. The CFD protocol compares three shortlisted placements under full cooling and two coil outages using matched inlet probes and a common warm-up within each model. The evaluation is designed to test whether the two models preserve the placement ranking and identify the same hot inlets. This draft reports the screening result, not the outcome of the unfinished CFD comparison.
+We test whether a two-dimensional transient heat-balance model preserves rack-placement decisions obtained with three-dimensional computational fluid dynamics (CFD) during cooling-coil outages. The screening model evaluates 32 positions for a single peak-load rack in a raised-floor data hall. We compare three shortlisted placements under full cooling and two coil outages with fans operating, using 52,128 matched inlet-temperature readings. Both models identify the same limiting tested outage for each placement, but they select different placements when minimizing the worst sampled inlet temperature: the screening model selects D02, whereas nominal CFD selects B05. Relative to the current placement C01, D02 reduces the worst sampled peak by $1.23\,^{\circ}\mathrm{C}$ in the screening model and $0.37\,^{\circ}\mathrm{C}$ in nominal CFD. Smaller-step CRAC-3 runs on the original mesh give the same order for B05 and D02, but the observed gap changes from $0.19$ to $0.64\,^{\circ}\mathrm{C}$. A temperature jump immediately after a checkpoint restart prevents attributing that change to step size alone. The results distinguish agreement on the limiting outage from agreement on the placement decision, without establishing a mesh-independent ranking or physical validation.
 \end{abstract}
 
 \begin{keywords}
@@ -61,7 +61,7 @@ ThermoWatch evaluates this trade-off in a 32-rack data hall. It first uses a two
 \section{Related Work}
 Banerjee \emph{et al.} combined cooling awareness and thermal awareness in workload placement for high-performance computing data centers \cite{banerjee2011}. The placement decision studied here is narrower: the hall geometry and installed cooling capacity remain fixed, and the position of a single sustained peak load changes. The objective is the worst sampled rack-inlet temperature across several cooling states rather than the temperature under full cooling alone.
 
-Han \emph{et al.} developed an open-source fast fluid dynamics model for data center thermal management \cite{han2021}. ThermoWatch takes a different simplification: it does not solve for velocity. Instead, it prescribes airflow through the racks and assigns each rack to a cooling loop. This makes the model inexpensive enough to screen all 32 slots, but it also removes the 3D flow mechanisms that can change the placement ranking. The CFD comparison measures the consequence of that simplification for this decision. These works establish related approaches; a broader literature comparison is needed before making a claim of novelty.
+Schmidt and Cruz used CFD to examine inlet temperatures when high-power racks occupy different locations in a raised-floor hall \cite{schmidt2002}. Erden \emph{et al.} modeled transient cooling interruptions with a hybrid lumped-capacitance and CFD approach and compared predictions with measurements from a three-rack test cell \cite{erden2014}. Han \emph{et al.} compared fast fluid dynamics, CFD, and measurements, then applied the fast model to screen plenum and tile designs \cite{han2021}. ThermoWatch does not solve for velocity: it prescribes rack airflow and assigns each rack to a cooling loop. The contribution here is a matched benchmark that checks whether that simplification preserves the placement decision under coil-only failures, rather than a new optimization algorithm or a claim of precedence.
 
 \section{Methodology}
 
@@ -120,56 +120,78 @@ Each CRAC removes and supplies 2.304~kg/s of air. The active boundary maps retur
 
 \section{Experimental Evaluation}
 \subsection{Matched CFD Cases}
-The selected placements are C01 (current), B05 (all-cooling choice), and D02 (outage-aware choice). Table~\ref{tab:cases} gives the frozen test matrix. CRAC-1 and CRAC-3 are included because they produce the limiting scenarios for the shortlisted placements in the screening model. The CFD test is not a complete search over 32 slots or all four coil outages.
+The selected placements are C01 (current), B05 (all-cooling choice), and D02 (outage-aware choice). Each is tested with full cooling, with CRAC-1 cooling disabled, and with CRAC-3 cooling disabled. The two outages correspond to the limiting scenarios for the shortlisted placements in the screening model. The CFD test is not a complete search over 32 slots or all four coil outages.
 
-\begin{table}[h]
-\caption{Frozen Placement and Cooling Test Matrix}
-\label{tab:cases}
-\centering
-\begin{tabular}{@{}llccc@{}}
-\toprule
-\textbf{Placement} & \textbf{Slot} & \textbf{Full} & \textbf{CRAC-1} & \textbf{CRAC-3} \\
- & & \textbf{cooling} & \textbf{off} & \textbf{off} \\
-\midrule
-Current & C01 & 1 & 1 & 1 \\
-All-cooling choice & B05 & 1 & 1 & 1 \\
-Outage-aware choice & D02 & 1 & 1 & 1 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Each CFD case begins from the same reconstructed 900~s all-cooling checkpoint. At the branch point, the selected slot increases from 1 to 4~kW, and each case enables or disables cooling as specified in Table~\ref{tab:cases}. All 32 inlet temperatures are sampled at the mapped cell centers and at a height of 1.15~m. The shared warm-up sample at solver time 900~s is retained as elapsed time zero; subsequent samples cover solver times through 1080~s. The equivalent Unity episode has its own common 2D warm-up rather than importing the 3D temperature field.
+Each CFD case begins from the same reconstructed 900~s all-cooling checkpoint. At the branch point, the selected slot increases from 1 to 4~kW, and the corresponding cooling condition is applied. All 32 inlet temperatures are sampled at the mapped cell centers and at a height of 1.15~m. The shared warm-up sample at solver time 900~s is retained as elapsed time zero; subsequent samples cover solver times through 1080~s. Unity uses its own common 2D warm-up rather than importing the 3D temperature field.
 
 \subsection{Comparison Metrics}
 The importer converts OpenFOAM probe temperatures from kelvin to degrees Celsius and checks the probe locations against the frozen coordinates. The comparison tool joins the two exports by placement, scenario, elapsed second, and rack slot. It checks that the peak-load slot agrees and that no required samples are missing or duplicated. The complete matrix yields $9\times181\times32=52{,}128$ matched readings. These repeated spatial and temporal observations are not independent experimental replicates.
 
-The primary comparison is the ordering of placements by their worst inlet peak over the same three operating scenarios. Define the envelope over the CFD test scenarios $\mathcal S$ as $W_m(\ell)=\max_{s\in\mathcal S}J_m(\ell,s)$, using \eqref{eq:case-peak} for either model. The difference of interest is $W_m(\mathrm{C01})-W_m(\mathrm{D02})$; a positive difference favors D02. Secondary metrics are mean absolute error, root-mean-square error, signed bias, peak time, and overlap in hottest rack slots. The temperature errors describe pointwise agreement; they do not replace the ranking test.
+The primary comparison is the ordering of placements by their worst inlet peak over the same three operating scenarios. Define the envelope over the test scenarios $\mathcal S$ as $W_m(\ell)=\max_{s\in\mathcal S}J_m(\ell,s)$, using \eqref{eq:case-peak} for either model. We report the change from the current placement as $W_m(\mathrm{C01})-W_m(\mathrm{D02})$ and the gap between the two screening choices as $W_m(\mathrm{D02})-W_m(\mathrm{B05})$. A positive value for the latter favors B05. Secondary metrics include the first time and rack location of the case peak, and per-case error statistics over the matched samples. Signed bias is defined as 2D minus CFD.
 
-\subsection{Screening Results and CFD Status}
-Table~\ref{tab:pending} reports the archived 2D model values over the three matched scenarios. The 2D model predicts a $1.23\,^{\circ}\mathrm{C}$ reduction in the worst sampled inlet peak for D02 compared with C01. The all-cooling choice B05 has a higher modeled worst case than C01 over the matched scenarios. These values come only from the 2D model and are not findings of the ongoing CFD benchmark.
+\section{Results}
+\subsection{Placement and Limiting Outage}
+Table~\ref{tab:peaks} reports peak temperatures for all nine placements and operating conditions. Over the matched scenarios, the 2D model ranks the placements D02, C01, B05 from coolest to warmest; nominal CFD ranks them B05, D02, C01. Both models indicate that D02 improves on C01, but the improvement is $1.23\,^{\circ}\mathrm{C}$ in 2D and $0.37\,^{\circ}\mathrm{C}$ in CFD. Under full cooling alone, B05 is the coolest placement in 2D but the warmest in CFD.
 
-\begin{table}[h]
-\caption{Worst Sampled Rack-Inlet Temperature for the Matched Scenarios}
-\label{tab:pending}
+\begin{table}[t]
+\caption{Peak Sampled Inlet Temperature by Condition (2D / Nominal CFD, $^\circ$C)}
+\label{tab:peaks}
 \centering
-\begin{tabular}{@{}lccc@{}}
+\begin{tabular}{@{}lrrr@{}}
 \toprule
-\textbf{Placement} & \textbf{Slot} & \textbf{2D ($^\circ$C)} & \textbf{CFD ($^\circ$C)} \\
+\textbf{Slot} & \textbf{Full cooling} & \textbf{CRAC-1 off} & \textbf{CRAC-3 off} \\
 \midrule
-Current & C01 & 34.65 & Pending \\
-All-cooling choice & B05 & 35.22 & Pending \\
-Outage-aware choice & D02 & 33.42 & Pending \\
+C01 & 19.22 / 21.79 & \textbf{34.65 / 26.37} & 33.69 / 25.93 \\
+B05 & 18.94 / 22.60 & 34.92 / 25.54 & \textbf{35.22 / 25.80} \\
+D02 & 19.22 / 21.74 & 33.40 / 25.59 & \textbf{33.42 / 26.00} \\
+\bottomrule
+\end{tabular}
+\par\smallskip{\footnotesize Bold marks the limiting condition for both models in each row.}
+\end{table}
+
+Despite the ranking disagreement, both models identify CRAC-1 as the limiting tested outage for C01 and CRAC-3 for B05 and D02. The 2D difference between the two outage peaks for D02 is only $0.018\,^{\circ}\mathrm{C}$, so agreement on which outage leads does not imply a large margin between them. All six outage episodes reach their sampled maxima at the 180~s endpoint in both models; the results characterize a 180~s exposure, not a sustained-outage steady state.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{inlet-peaks-crac3.png}
+\caption{Maximum across the 32 inlet probes at each sampled second under the CRAC-3 coil outage. Panels (b) and (c) share a vertical scale. In (c), B05 and D02 resumed from checkpoints at 18 and 168~s, respectively. The maximizing rack may change over time.}
+\label{fig:crac3}
+\end{figure}
+
+\subsection{Temperature and Hotspot Agreement}
+In the full-cooling cases, per-case bias ranges from $-1.68$ to $-1.56\,^{\circ}\mathrm{C}$; in the outage cases it ranges from $+0.55$ to $+1.48\,^{\circ}\mathrm{C}$. Mean absolute differences are $1.56$--$1.68\,^{\circ}\mathrm{C}$ under full cooling and $2.23$--$2.80\,^{\circ}\mathrm{C}$ under outages. The peak rack matches in two of nine cases, both at A02 under CRAC-1. Under CRAC-3, the 2D model places the peak at A08 for every placement, while nominal CFD places it at C07. Fig.~\ref{fig:crac3} shows how the room-wide inlet maxima evolve for the two competing placements under CRAC-3.
+
+\subsection{Time-Step Sensitivity of the Deciding Pair}
+We repeated the B05 and D02 cases with CRAC-3 cooling disabled, keeping the 37,862-cell mesh, the 900~s starting fields, and the target maximum Courant number of 0.5. We set both the initial step and its cap to 0.004~s; the nominal adaptive steps were typically about 0.00862~s. Each rerun retained all 5,792 inlet samples. The signed difference uses the peak from each rerun under CRAC-3; it is not a reranking of all nine cases at the smaller step.
+
+\begin{table}[t]
+\caption{Time-Step Check on the Original Mesh: CRAC-3 Off}
+\label{tab:dt}
+\centering
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+\textbf{Step setting} & \textbf{B05 ($^\circ$C)} & \textbf{D02 ($^\circ$C)} & \textbf{D02--B05 ($^\circ$C)} \\
+\midrule
+Nominal & 25.803 & 25.997 & $+0.194$ \\
+0.004~s cap & 25.829 & 26.470 & $+0.641$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
+The observed sign is unchanged, but the gap is $0.447\,^{\circ}\mathrm{C}$ larger (Table~\ref{tab:dt}). For both placements the peak time remains 180~s and the peak rack shifts from C07 to C08. Both smaller-step runs were interrupted and resumed. Across the first post-restart sample, the room-wide maximum falls by $0.226\,^{\circ}\mathrm{C}$ for B05 (18--19~s) and rises by $0.536\,^{\circ}\mathrm{C}$ for D02 (168--169~s); C08 is the hottest rack on both sides of each restart (Fig.~\ref{fig:crac3}). The corresponding transitions in nominal CFD are $+0.065$ and $+0.012\,^{\circ}\mathrm{C}$. The gap change cannot be attributed to the time step alone. An uninterrupted rerun or a restart-matched control is needed to separate the effects; these data establish neither temporal convergence nor a numerical uncertainty bound.
+
 \section{Discussion}
 Several differences can explain a ranking reversal. The 2D model assigns each rack to a single nearest cooling loop, whereas the CFD model allows return air and recirculation to depend on the 3D flow field. The models also treat plenum supply, vertical temperature variation, and physical obstructions differently. A high-load exhaust may therefore affect different rack inlets even with identical electrical power and nominal cooling capacity.
 
-Before interpreting a CFD advantage, check whether the \emph{difference} in worst-case inlet peaks is stable under mesh and time-step refinement \cite{nasaVerification} and changes in assumed flow and tile resistance. Without physical measurements, this is a cross-model comparison, not physical validation. A claim covering all single-coil outages requires CRAC-2 and CRAC-4, and estimating how often the shortlist misses a better slot requires CFD runs for additional placements.
+The screening model can flag candidates and limiting scenarios for further study, but in this benchmark it did not recover the nominal CFD choice or consistently locate the hottest inlet. The mechanisms identified above are hypotheses, not isolated causes: this comparison changes several model assumptions at once. The nominal and smaller-step runs returned the same pairwise order under CRAC-3, but they do not isolate the effect of time resolution. A spatial sensitivity check uses a 69,188-cell mesh, a new common all-cooling warm-up on that mesh, and the same 0.004~s cap during the outage episodes. No spatial sensitivity result is reported here. A two-mesh comparison would be a sensitivity check, not a full convergence study \cite{nasaVerification}.
+
+Without physical measurements, this is a cross-model comparison, not physical validation. The particular gap may depend on assumed fan flows, tile resistance, and other boundary conditions. A claim covering all single-coil outages requires CRAC-2 and CRAC-4, and estimating how often the shortlist misses a better slot requires CFD runs for additional placements.
 
 \section{Conclusion}
-ThermoWatch provides a repeatable protocol for comparing low-cost outage-aware placement screening with 3D CFD in one raised-floor hall. The 2D model selects D02 for the stated loads and cooling scenarios. Whether that choice is supported by CFD, and whether the difference is large enough to distinguish from simulation uncertainty, remain open until the benchmark and follow-up checks are complete.
+In this raised-floor hall, the two models agreed on the limiting tested outage for each shortlisted placement and on the direction of D02's improvement over C01, but they did not select the same best placement. Under CRAC-3, B05 had the lower CFD peak in both runs on the original mesh, but checkpoint restarts confound the comparison across time steps. Agreement on the limiting outage is therefore not sufficient evidence for a placement decision or a numerically settled thermal margin.
+
+\section*{Data Availability}
+The geometry and probe manifests, matched temperature traces, comparison outputs, and analysis tools are available in the ThermoWatch repository: \url{https://github.com/VishalBhat07/datacenter-thermology}.
 
 % Add verified funding, contributions, and any required AI-use disclosure
 % in the acknowledgments before submission. Add confirmed author biographies.
@@ -180,6 +202,16 @@ A. Banerjee, T. Mukherjee, G. Varsamopoulos, and S. K. S. Gupta,
 ``Integrating cooling awareness with thermal aware workload placement for HPC data centers,''
 \emph{Sustainable Computing: Informatics and Systems}, vol. 1, no. 2,
 pp. 134--150, 2011, doi: 10.1016/j.suscom.2011.02.003.
+
+\bibitem{schmidt2002}
+R. Schmidt and E. Cruz,
+``Raised floor computer data center: Effect on rack inlet temperatures when high powered racks are situated amongst lower powered racks,''
+in \emph{Proc. ASME Int. Mechanical Engineering Congress and Exposition}, 2002, doi: 10.1115/IMECE2002-39652.
+
+\bibitem{erden2014}
+H. S. Erden, H. E. Khalifa, and R. R. Schmidt,
+``A hybrid lumped capacitance-CFD model for the simulation of data center transients,''
+\emph{HVAC\&R Research}, 2014, doi: 10.1080/10789669.2014.930280.
 
 \bibitem{han2021}
 X. Han, W. Tian, J. VanGilder, W. Zuo, and C. Faulkner,

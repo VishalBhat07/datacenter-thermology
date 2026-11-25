@@ -1,0 +1,74 @@
+{
+  "scenario": "CRAC-3 coil off; fan flow unchanged",
+  "mesh": "nominal, unchanged",
+  "settings": {
+    "cases": [
+      "all_cooling_crac-3",
+      "outage_aware_crac-3"
+    ],
+    "start_s": 900,
+    "end_s": 1080,
+    "ranks": 4,
+    "changes": {
+      "deltaT": [
+        "0.005",
+        "0.004"
+      ],
+      "maxDeltaT": [
+        "0.025",
+        "0.004"
+      ]
+    },
+    "nominal_step_median_s": 0.00862068966
+  },
+  "layouts": {
+    "all_cooling": {
+      "peak_inlet_c": 25.8288,
+      "first_peak_second": 180,
+      "hottest_slots": [
+        "C08"
+      ],
+      "nominal_peak_inlet_c": 25.802882,
+      "change_from_nominal_c": 0.025918000000000774,
+      "latest_solver_segment_step_min_s": 0.004,
+      "latest_solver_segment_step_median_s": 0.004,
+      "latest_solver_segment_step_max_s": 0.004,
+      "sample_count": 5792
+    },
+    "outage_aware": {
+      "peak_inlet_c": 26.469627000000003,
+      "first_peak_second": 180,
+      "hottest_slots": [
+        "C08"
+      ],
+      "nominal_peak_inlet_c": 25.997106,
+      "change_from_nominal_c": 0.47252100000000397,
+      "latest_solver_segment_step_min_s": 0.004,
+      "latest_solver_segment_step_median_s": 0.004,
+      "latest_solver_segment_step_max_s": 0.004,
+      "sample_count": 5792
+    }
+  },
+  "paired_gap_c": {
+    "definition": "D02 minus B05, positive favors B05",
+    "nominal": 0.1942239999999984,
+    "smaller_time_step": 0.6408270000000016,
+    "change": 0.4466030000000032,
+    "sign_preserved": true
+  },
+  "checkpoint_restarts": {
+    "interpretation": "The post-restart jumps mean step-size and restart effects are not isolated.",
+    "all_cooling": {
+      "elapsed_restart_s": 18,
+      "first_post_restart_sample_s": 19,
+      "room_max_change_c": -0.226151,
+      "hottest_rack_before_and_after": "C08"
+    },
+    "outage_aware": {
+      "elapsed_restart_s": 168,
+      "first_post_restart_sample_s": 169,
+      "room_max_change_c": 0.536130,
+      "hottest_rack_before_and_after": "C08"
+    }
+  }
+}
