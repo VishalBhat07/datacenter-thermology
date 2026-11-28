@@ -1,0 +1,60 @@
+{
+  "scenario": "CRAC-3 coil off; fan flow unchanged",
+  "mesh": "nominal, unchanged",
+  "settings": {
+    "cases": [
+      "all_cooling_crac-3",
+      "outage_aware_crac-3"
+    ],
+    "start_s": 900,
+    "end_s": 1080,
+    "ranks": 4,
+    "changes": {
+      "deltaT": [
+        "0.005",
+        "0.004"
+      ],
+      "maxDeltaT": [
+        "0.025",
+        "0.004"
+      ]
+    },
+    "nominal_step_median_s": 0.00862068966,
+    "episode_restart_policy": "uninterrupted"
+  },
+  "layouts": {
+    "all_cooling": {
+      "peak_inlet_c": 25.897357,
+      "first_peak_second": 180,
+      "hottest_slots": [
+        "C08"
+      ],
+      "nominal_peak_inlet_c": 25.802882,
+      "change_from_nominal_c": 0.0944749999999992,
+      "latest_solver_segment_step_min_s": 0.004,
+      "latest_solver_segment_step_median_s": 0.004,
+      "latest_solver_segment_step_max_s": 0.004,
+      "sample_count": 5792
+    },
+    "outage_aware": {
+      "peak_inlet_c": 25.957673,
+      "first_peak_second": 180,
+      "hottest_slots": [
+        "C08"
+      ],
+      "nominal_peak_inlet_c": 25.997106,
+      "change_from_nominal_c": -0.03943299999999894,
+      "latest_solver_segment_step_min_s": 0.004,
+      "latest_solver_segment_step_median_s": 0.004,
+      "latest_solver_segment_step_max_s": 0.004,
+      "sample_count": 5792
+    }
+  },
+  "paired_gap_c": {
+    "definition": "D02 minus B05, positive favors B05",
+    "nominal": 0.1942239999999984,
+    "smaller_time_step": 0.06031600000000026,
+    "change": -0.13390799999999814,
+    "sign_preserved": true
+  }
+}

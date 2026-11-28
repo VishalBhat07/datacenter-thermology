@@ -1,0 +1,9 @@
+{
+  "definition": "D02 minus B05 peak inlet temperature in Celsius; positive favors B05",
+  "interrupted_original_mesh_c": 0.6408270000000016,
+  "uninterrupted_original_mesh_c": 0.06031600000000026,
+  "finer_mesh_c": 0.022652999999991152,
+  "original_mesh_change_without_mid_episode_restarts_c": -0.5805110000000013,
+  "fine_minus_uninterrupted_original_mesh_c": -0.037663000000009106,
+  "fine_mesh_warmup_restarted_at_s": 664
+}

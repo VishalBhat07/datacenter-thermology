@@ -124,16 +124,18 @@ python3 Tools/compare_cfd_traces.py \
 ```
 
 
-## Time-step sensitivity: B05 and D02 under CRAC-3
+## Time-step, restart, and mesh checks: B05 and D02 under CRAC-3
 
-The [paired traces](results/time-step/cfd-traces.csv) and [report](results/time-step/comparison.json) cover two CRAC-3 coil-off episodes with fan flow retained, the original 37,862-cell mesh, and the same 900 s starting fields. The initial and maximum solver step were set to 0.004 s, keeping `maxCo` at 0.5. The nominal adaptive step median was approximately 0.00862 s. Each trace includes 32 probes at all 181 sampled seconds. Interrupted runs resumed from complete checkpoints; the probe importer checks positions and rejects conflicting restart values.
+The follow-up cases model CRAC-3 coil loss with fan flow retained. Each case includes 32 probes at all 181 sampled seconds. On the original 37,862-cell mesh, both 0.004 s pairs use identical starting fields and settings, including `maxCo = 0.5`; the nominal adaptive step median was approximately 0.00862 s. The finer-mesh pair uses a separate shared warm-up on 69,188 cells. That warm-up resumed at 664 s, but neither outage episode was interrupted. The probe importer checks positions and rejects conflicting restart values.
 
-| Time-step setting | B05 peak | D02 peak | D02 minus B05 |
+| Setting | B05 peak | D02 peak | D02 minus B05 |
 | --- | ---: | ---: | ---: |
 | Nominal | 25.802882 °C | 25.997106 °C | +0.194224 °C |
-| 0.004 s cap | 25.828800 °C | 26.469627 °C | +0.640827 °C |
+| 0.004 s, original mesh, interrupted ([traces](results/time-step/cfd-traces.csv), [report](results/time-step/comparison.json)) | 25.828800 °C | 26.469627 °C | +0.640827 °C |
+| 0.004 s, original mesh, uninterrupted ([traces](results/time-step-uninterrupted/cfd-traces.csv), [report](results/time-step-uninterrupted/comparison.json)) | 25.897357 °C | 25.957673 °C | +0.060316 °C |
+| 0.004 s, finer mesh ([traces](results/finer-mesh/cfd-traces.csv), [report](results/finer-mesh/comparison.json)) | 25.775139 °C | 25.797792 °C | +0.022653 °C |
 
-Both peaks remain at elapsed time 180 s; both move from C07 to C08. B05 has the lower peak at both settings; the observed difference grows by 0.446603 °C. At the first post-restart sample, the room-wide maximum changes by −0.226151 °C for B05 (18–19 s) and +0.536130 °C for D02 (168–169 s), both at C08. The step-size and restart effects are not isolated. An uninterrupted rerun or restart-matched control is needed before attributing gap changes to time-step or mesh settings. The check does not establish temporal convergence, a numerical uncertainty bound, or a finer-time-step ranking across all nine cases.
+Both peaks occur at elapsed time 180 s, at C07 in the nominal pair and C08 in every 0.004 s pair. At the first post-restart sample, the room-wide maximum changes by −0.226151 °C for B05 (18–19 s) and +0.536130 °C for D02 (168–169 s), both at C08. The [comparison summary](results/sensitivity-summary.json) shows that the original-mesh gap falls from 0.640827 °C in the interrupted runs to 0.060316 °C when both episodes run without interruption. B05 retains the lower observed peak in all four configurations. The finer-mesh warm-up restart limits attribution to the mesh alone, and the checks do not establish convergence, numerical uncertainty bounds, or rankings outside the tested pair and outage.
 
 ## Completed run evidence
 

@@ -43,7 +43,7 @@
 \corresp{Corresponding author to be confirmed.}
 
 \begin{abstract}
-We test whether a two-dimensional transient heat-balance model preserves rack-placement decisions obtained with three-dimensional computational fluid dynamics (CFD) during cooling-coil outages. The screening model evaluates 32 positions for a single peak-load rack in a raised-floor data hall. We compare three shortlisted placements under full cooling and two coil outages with fans operating, using 52,128 matched inlet-temperature readings. Both models identify the same limiting tested outage for each placement, but they select different placements when minimizing the worst sampled inlet temperature: the screening model selects D02, whereas nominal CFD selects B05. Relative to the current placement C01, D02 reduces the worst sampled peak by $1.23\,^{\circ}\mathrm{C}$ in the screening model and $0.37\,^{\circ}\mathrm{C}$ in nominal CFD. Smaller-step CRAC-3 runs on the original mesh give the same order for B05 and D02, but the observed gap changes from $0.19$ to $0.64\,^{\circ}\mathrm{C}$. A temperature jump immediately after a checkpoint restart prevents attributing that change to step size alone. The results distinguish agreement on the limiting outage from agreement on the placement decision, without establishing a mesh-independent ranking or physical validation.
+We test whether a two-dimensional transient heat-balance model preserves rack-placement decisions obtained with three-dimensional computational fluid dynamics (CFD) during cooling-coil outages. The screening model evaluates 32 positions for a single peak-load rack in a raised-floor data hall. We compare three shortlisted placements under full cooling and two coil outages with fans operating, using 52,128 matched inlet-temperature readings. Both models identify the same limiting tested outage for each placement, but the screening model selects D02 and nominal CFD selects B05 when minimizing the worst sampled inlet temperature. Relative to the current placement C01, D02 reduces that peak by $1.23\,^{\circ}\mathrm{C}$ in the screening model and $0.37\,^{\circ}\mathrm{C}$ in nominal CFD. Under the deciding CRAC-3 outage, B05's CFD lead is $0.194\,^{\circ}\mathrm{C}$ at nominal settings, $0.060\,^{\circ}\mathrm{C}$ at a 0.004~s step on the original mesh without mid-episode restarts, and $0.023\,^{\circ}\mathrm{C}$ on the finer mesh. An interrupted comparison at the same 0.004~s step gives a much larger $0.641\,^{\circ}\mathrm{C}$ gap. Agreement on the limiting outage does not guarantee agreement on placement, and the observed CFD lead has no established numerical uncertainty bound.
 \end{abstract}
 
 \begin{keywords}
@@ -153,42 +153,45 @@ Despite the ranking disagreement, both models identify CRAC-1 as the limiting te
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{inlet-peaks-crac3.png}
-\caption{Maximum across the 32 inlet probes at each sampled second under the CRAC-3 coil outage. Panels (b) and (c) share a vertical scale. In (c), B05 and D02 resumed from checkpoints at 18 and 168~s, respectively. The maximizing rack may change over time.}
+\includegraphics[width=.90\columnwidth]{inlet-peaks-crac3.png}
+\caption{Maximum across the 32 inlet probes at each sampled second under the CRAC-3 coil outage. CFD panels share a vertical scale. The interrupted runs resumed at 18~s (B05) and 168~s (D02). The maximizing rack may change over time.}
 \label{fig:crac3}
 \end{figure}
 
 \subsection{Temperature and Hotspot Agreement}
 In the full-cooling cases, per-case bias ranges from $-1.68$ to $-1.56\,^{\circ}\mathrm{C}$; in the outage cases it ranges from $+0.55$ to $+1.48\,^{\circ}\mathrm{C}$. Mean absolute differences are $1.56$--$1.68\,^{\circ}\mathrm{C}$ under full cooling and $2.23$--$2.80\,^{\circ}\mathrm{C}$ under outages. The peak rack matches in two of nine cases, both at A02 under CRAC-1. Under CRAC-3, the 2D model places the peak at A08 for every placement, while nominal CFD places it at C07. Fig.~\ref{fig:crac3} shows how the room-wide inlet maxima evolve for the two competing placements under CRAC-3.
 
-\subsection{Time-Step Sensitivity of the Deciding Pair}
-We repeated the B05 and D02 cases with CRAC-3 cooling disabled, keeping the 37,862-cell mesh, the 900~s starting fields, and the target maximum Courant number of 0.5. We set both the initial step and its cap to 0.004~s; the nominal adaptive steps were typically about 0.00862~s. Each rerun retained all 5,792 inlet samples. The signed difference uses the peak from each rerun under CRAC-3; it is not a reranking of all nine cases at the smaller step.
+\subsection{Time-Step, Restart, and Mesh Checks}
+We repeated B05 and D02 under CRAC-3 with the original 37,862-cell mesh, the same 900~s starting fields, and the same Courant target of 0.5, setting the initial step and its cap to 0.004~s (nominal median: about 0.00862~s). After observing jumps in the interrupted runs, we repeated both episodes without mid-episode restarts. We also tested the pair on a 69,188-cell mesh at the same 0.004~s step, branching from a separate common 900~s warm-up on that mesh. The finer-mesh warm-up resumed at 664~s; neither finer-mesh outage episode was interrupted. All reruns retained 5,792 inlet samples per episode. These checks compare only the deciding pair under CRAC-3.
 
 \begin{table}[t]
-\caption{Time-Step Check on the Original Mesh: CRAC-3 Off}
+\caption{CFD Sensitivity of the Peak Inlet Temperature: CRAC-3 Off}
 \label{tab:dt}
 \centering
 \begin{tabular}{@{}lrrr@{}}
 \toprule
-\textbf{Step setting} & \textbf{B05 ($^\circ$C)} & \textbf{D02 ($^\circ$C)} & \textbf{D02--B05 ($^\circ$C)} \\
+\textbf{Run} & \textbf{B05 ($^\circ$C)} & \textbf{D02 ($^\circ$C)} & \textbf{Gap ($^\circ$C)} \\
 \midrule
 Nominal & 25.803 & 25.997 & $+0.194$ \\
-0.004~s cap & 25.829 & 26.470 & $+0.641$ \\
+0.004~s, interrupted & 25.829 & 26.470 & $+0.641$ \\
+0.004~s, uninterrupted & 25.897 & 25.958 & $+0.060$ \\
+0.004~s, finer mesh & 25.775 & 25.798 & $+0.023$ \\
 \bottomrule
 \end{tabular}
+\par\smallskip{\footnotesize Gap is D02 minus B05, calculated before rounding.}
 \end{table}
 
-The observed sign is unchanged, but the gap is $0.447\,^{\circ}\mathrm{C}$ larger (Table~\ref{tab:dt}). For both placements the peak time remains 180~s and the peak rack shifts from C07 to C08. Both smaller-step runs were interrupted and resumed. Across the first post-restart sample, the room-wide maximum falls by $0.226\,^{\circ}\mathrm{C}$ for B05 (18--19~s) and rises by $0.536\,^{\circ}\mathrm{C}$ for D02 (168--169~s); C08 is the hottest rack on both sides of each restart (Fig.~\ref{fig:crac3}). The corresponding transitions in nominal CFD are $+0.065$ and $+0.012\,^{\circ}\mathrm{C}$. The gap change cannot be attributed to the time step alone. An uninterrupted rerun or a restart-matched control is needed to separate the effects; these data establish neither temporal convergence nor a numerical uncertainty bound.
+Across the first post-restart sample, the room-wide maximum falls by $0.226\,^{\circ}\mathrm{C}$ for B05 (18--19~s) and rises by $0.536\,^{\circ}\mathrm{C}$ for D02 (168--169~s), both at C08 (Fig.~\ref{fig:crac3}). Without mid-episode restarts, the gap at the same step and mesh falls from $0.641$ to $0.060\,^{\circ}\mathrm{C}$ (Table~\ref{tab:dt}). The finer mesh gives a $0.023\,^{\circ}\mathrm{C}$ gap; the warm-up restart prevents attributing that further change to mesh resolution alone. B05 has the lower observed peak in every CFD configuration tested. Both placements peak at 180~s, at C07 in the nominal runs and at C08 in all 0.004~s runs.
 
 \section{Discussion}
 Several differences can explain a ranking reversal. The 2D model assigns each rack to a single nearest cooling loop, whereas the CFD model allows return air and recirculation to depend on the 3D flow field. The models also treat plenum supply, vertical temperature variation, and physical obstructions differently. A high-load exhaust may therefore affect different rack inlets even with identical electrical power and nominal cooling capacity.
 
-The screening model can flag candidates and limiting scenarios for further study, but in this benchmark it did not recover the nominal CFD choice or consistently locate the hottest inlet. The mechanisms identified above are hypotheses, not isolated causes: this comparison changes several model assumptions at once. The nominal and smaller-step runs returned the same pairwise order under CRAC-3, but they do not isolate the effect of time resolution. A spatial sensitivity check uses a 69,188-cell mesh, a new common all-cooling warm-up on that mesh, and the same 0.004~s cap during the outage episodes. No spatial sensitivity result is reported here. A two-mesh comparison would be a sensitivity check, not a full convergence study \cite{nasaVerification}.
+The screening model can flag candidates and limiting scenarios for further study, but in this benchmark it did not recover the nominal CFD choice or consistently locate the hottest inlet. The mechanisms identified above are hypotheses: the comparison changes several model assumptions at once. The repeated CFD ordering under CRAC-3 is evidence about the tested configurations. The magnitude of the lead varies with numerical settings and restart history, and these runs establish neither convergence nor an uncertainty bound for the difference \cite{nasaVerification}. They do not establish a numerically resolved preference between B05 and D02.
 
 Without physical measurements, this is a cross-model comparison, not physical validation. The particular gap may depend on assumed fan flows, tile resistance, and other boundary conditions. A claim covering all single-coil outages requires CRAC-2 and CRAC-4, and estimating how often the shortlist misses a better slot requires CFD runs for additional placements.
 
 \section{Conclusion}
-In this raised-floor hall, the two models agreed on the limiting tested outage for each shortlisted placement and on the direction of D02's improvement over C01, but they did not select the same best placement. Under CRAC-3, B05 had the lower CFD peak in both runs on the original mesh, but checkpoint restarts confound the comparison across time steps. Agreement on the limiting outage is therefore not sufficient evidence for a placement decision or a numerically settled thermal margin.
+In this raised-floor hall, the two models agreed on the limiting tested outage for each shortlisted placement and on the direction of D02's improvement over C01, but they did not select the same best placement. B05 had the lower CFD peak under CRAC-3 across the tested settings, with a lead of only $0.023\,^{\circ}\mathrm{C}$ on the finer mesh. Agreement on the limiting outage supports scenario screening; it does not by itself settle the placement decision or the margin between placements.
 
 \section*{Data Availability}
 The geometry and probe manifests, matched temperature traces, comparison outputs, and analysis tools are available in the ThermoWatch repository: \url{https://github.com/VishalBhat07/datacenter-thermology}.
